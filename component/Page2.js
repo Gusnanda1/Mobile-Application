@@ -4,45 +4,95 @@ import {
   Image,
   TextInput,
   StyleSheet,
+  ScrollView,
   TouchableHighlight,
 } from "react-native";
+import { API } from "../config/API";
+import React, { useState } from "react";
+export let username = "";
+export let token = "";
 
-export default function Page2() {
+
+export default function Page2({ navigation }) {
+  const [Form, setForm] = useState({
+    email: "",
+    password: "",
+  });
+
+  const handleChange = (name, value) => {
+    setForm({
+      ...Form,
+      [name]: value,
+    });
+  };
+  const handleLogin = async () => {
+    try {
+      const response = await API.post("/auth/login", Form).then(
+        (res) => res.data
+      );
+      username = response.user.firstName;
+      token = response.token;
+      userMail = response.user.email;
+      alert("Login Successfully!");
+
+      navigation.navigate("Tab");
+    } catch (error) {
+      alert("Login Failed, Wrong Email or Password");
+      console.log(error);
+    }
+  };
   return (
-    <View style={{ width: "100%", alignItems: "center" }}>
-      <Image
-        source={require("../assets/LoginIcon.png")}
-        style={styles.img}
-      ></Image>
-      <Text
-        style={{
-          fontSize: 30,
-          fontWeight: "800",
-          marginRight: 250,
-          marginTop: 10,
-        }}
-      >
-        Login
-      </Text>
+    <ScrollView>
+      <View style={{ width: "100%", alignItems: "center" }}>
+        <Image
+          source={require("../assets/LoginIcon.png")}
+          style={styles.img}
+        ></Image>
+        <Text
+          style={{
+            fontSize: 30,
+            fontWeight: "800",
+            marginRight: 250,
+            marginTop: 10,
+          }}
+        >
+          Login
+        </Text>
 
-      <TextInput
-        placeholder="Email"
-        placeholderTextColor={"#999999"}
-        style={styles.txtInput}
-      ></TextInput>
-      <TextInput
-        placeholder="Password"
-        placeholderTextColor={"#999999"}
-        secureTextEntry={true}
-        style={styles.txtInput}
-      ></TextInput>
-      <TouchableHighlight>
-        <Text style={styles.button1}>Login</Text>
-      </TouchableHighlight>
-      <Text style={{ marginTop: 10 }}>
-        New Users ? <Text style={{ color: "#FF5555" }}> Register </Text>
-      </Text>
-    </View>
+        <TextInput
+          value={Form.email}
+          onChangeText={(value) => {
+            handleChange("email", value);
+          }}
+          placeholder="Email"
+          placeholderTextColor={"#999999"}
+          style={styles.txtInput}
+        ></TextInput>
+        <TextInput
+          value={Form.password}
+          onChangeText={(value) => {
+            handleChange("password", value);
+          }}
+          placeholder="Password"
+          placeholderTextColor={"#999999"}
+          secureTextEntry={true}
+          style={styles.txtInput}
+        ></TextInput>
+        <TouchableHighlight onPress={handleLogin}>
+          <Text style={styles.button1}>Login</Text>
+        </TouchableHighlight>
+
+        <Text style={{ marginTop: 10 }}>
+          New Users ?{" "}
+          <Text
+            style={{ color: "#FF5555" }}
+            onPress={() => navigation.navigate("Register")}
+          >
+            Register
+          </Text>
+        </Text>
+      </View>
+    </ScrollView>
   );
 }
 
